@@ -1,241 +1,305 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>قنبلة الأسئلة</title>
-  <style>
-    /* ── Custom Font ── */
-    @font-face {
-      font-family: 'CustomFont';
-      src: url('cairo_regular.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
-
-    /* ── CSS Variables ── */
-    :root {
-      --blue-deep:    #0a1628;
-      --blue-mid:     #0d2d6e;
-      --blue-bright:  #1a6ef5;
-      --blue-glow:    #3d9fff;
-      --orange-fire:  #ff6a00;
-      --orange-hot:   #ff9500;
-      --orange-gold:  #ffb800;
-      --white:        #ffffff;
-      --white-dim:    rgba(255,255,255,0.75);
-      --white-faint:  rgba(255,255,255,0.1);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'CustomFont', 'Segoe UI', 'Tajawal', sans-serif;
-      background: var(--blue-deep);
-      color: var(--white);
-      overflow-x: hidden; /* لمنع السكرول الجانبي نهائياً */
-      direction: rtl;
-      width: 100%;
-    }
-
-    /* ── Animated Background ── */
-    .bg-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background: linear-gradient(160deg, #050e1f 0%, #0a1e4a 40%, #0d1a2e 70%, #1a0a00 100%);
-    }
-
-    .bg-orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(60px);
-      animation: floatOrb 12s ease-in-out infinite;
-      z-index: -1;
-    }
-    .bg-orb-1 { width: 300px; height: 300px; background: rgba(255,106,0,0.15); top: -50px; left: -100px; }
-    .bg-orb-2 { width: 250px; height: 250px; background: rgba(26,110,245,0.2); bottom: -50px; right: -50px; }
-
-    @keyframes floatOrb {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-30px); }
-    }
-
-    .page { position: relative; z-index: 1; width: 100%; }
-
-    /* ── HERO SECTION ── */
-    .hero {
-      min-height: 90vh; /* تقليل الارتفاع قليلاً ليناسب الجوال */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    .logo-wrap img {
-      width: 120px; /* تصغير اللوجو قليلاً */
-      height: auto;
-      filter: drop-shadow(0 0 20px rgba(255,106,0,0.5));
-      margin-bottom: 20px;
-    }
-
-    .hero-title {
-      font-size: clamp(2.5rem, 12vw, 5rem); /* حجم خط مرن */
-      font-weight: 900;
-      background: linear-gradient(135deg, #fff, var(--blue-glow), var(--orange-gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-
-    .hero-sub {
-      font-size: clamp(1rem, 4vw, 1.4rem);
-      color: var(--white-dim);
-      margin-bottom: 30px;
-    }
-
-    /* ── DESCRIPTION SECTION ── */
-    .desc-section {
-      padding: 40px 16px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .desc-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 30px 20px;
-      backdrop-filter: blur(10px);
-    }
-
-    .desc-line {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 15px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: 0.5s ease forwards;
-    }
-
-    .desc-line.visible { opacity: 1; transform: translateY(0); }
-
-    .desc-icon { font-size: 20px; min-width: 30px; }
-    .desc-text { font-size: 0.95rem; line-height: 1.6; color: var(--white-dim); }
-
-    /* ── FEATURES ── */
-    .features-strip {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); /* عمودين في الجوال */
-      gap: 12px;
-      padding: 20px 16px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .feat-pill {
-      background: rgba(255,255,255,0.05);
-      padding: 15px;
-      border-radius: 15px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .feat-emoji { display: block; font-size: 24px; margin-bottom: 5px; }
-    .feat-name { font-size: 0.85rem; font-weight: bold; }
-
-    /* ── DOWNLOAD ── */
-    .download-section {
-      padding: 60px 20px;
-      text-align: center;
-    }
-
-    .btn-download {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, var(--orange-fire), var(--orange-gold));
-      padding: 18px 40px;
-      border-radius: 50px;
-      color: white;
-      text-decoration: none;
-      font-weight: 800;
-      width: 100%;
-      max-width: 300px;
-      justify-content: center;
-      box-shadow: 0 10px 20px rgba(255,106,0,0.3);
-    }
-
-    /* Media Query للشاشات الكبيرة */
-    @media (min-width: 768px) {
-      .features-strip { grid-template-columns: repeat(4, 1fr); }
-      .desc-card { padding: 50px; }
-      .logo-wrap img { width: 150px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="bg-canvas"></div>
-  <div class="bg-orb bg-orb-1"></div>
-  <div class="bg-orb bg-orb-2"></div>
-
-  <div class="page">
-    <section class="hero">
-      <div class="logo-wrap">
-        <img src="logo.png" alt="Logo" onerror="this.style.display='none'; document.getElementById('alt-logo').style.display='flex'">
-        <div id="alt-logo" style="display:none; width:80px; height:80px; background:orange; border-radius:20px; align-items:center; justify-content:center; font-size:40px;">💣</div>
-      </div>
-      <h1 class="hero-title">قنبلة الأسئلة</h1>
-      <p class="hero-sub">لعبة السرعة · الذكاء · الإثارة</p>
-    </section>
-
-    <section class="desc-section">
-      <div class="desc-card">
-        <div class="desc-line observe-line">
-          <span class="desc-icon">💣</span>
-          <p class="desc-text">لعبة جماعية تعتمد على السرعة في الإجابة والذكاء تحت الضغط.</p>
-        </div>
-        <div class="desc-line observe-line">
-          <span class="desc-icon">🔁</span>
-          <p class="desc-text">تمرير "القنبلة" بين اللاعبين — أجب قبل انفجار الوقت!</p>
-        </div>
-        <div class="desc-line observe-line">
-          <span class="desc-icon">🔥</span>
-          <p class="desc-text">تجمع بين التنافس والمعرفة في أجواء مليئة بالحماس.</p>
-        </div>
-      </div>
-    </section>
-
-    <div class="features-strip">
-      <div class="feat-pill"><span class="feat-emoji">⚡</span><span class="feat-name">سريعة</span></div>
-      <div class="feat-pill"><span class="feat-emoji">🎯</span><span class="feat-name">أسئلة متنوعة</span></div>
-      <div class="feat-pill"><span class="feat-emoji">👑</span><span class="feat-name">تنافس</span></div>
-      <div class="feat-pill"><span class="feat-emoji">🤝</span><span class="feat-name">جماعية</span></div>
-    </div>
-
-    <section class="download-section">
-      <a href="#" class="btn-download">
-        <span>📲</span> تحميل للأندرويد
-      </a>
-    </section>
-
-    <footer style="text-align:center; padding:20px; opacity:0.4; font-size:0.8rem;">
-      © 2025 قنبلة الأسئلة
-    </footer>
-  </div>
-
-  <script>
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible');
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.observe-line').forEach(line => observer.observe(line));
-  </script>
-</body>
+<!DOCTYPE html>  <html lang="ar" dir="rtl">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />  
+  <title>قنبلة الأسئلة</title>  
+  <style>  
+  
+    /* ── Custom Font ── */  
+    @font-face {  
+      font-family: 'CustomFont';  
+      src: url('cairo_regular.otf') format('opentype');  
+      font-weight: normal;  
+      font-style: normal;  
+      font-display: swap;  
+    }  
+  
+    /* ── CSS Variables ── */  
+    :root {  
+      --blue-deep:    #0a1628;  
+      --blue-mid:     #0d2d6e;  
+      --blue-bright:  #1a6ef5;  
+      --blue-glow:    #3d9fff;  
+      --orange-fire:  #ff6a00;  
+      --orange-hot:   #ff9500;  
+      --orange-gold:  #ffb800;  
+      --white:        #ffffff;  
+      --white-dim:    rgba(255,255,255,0.75);  
+      --white-faint:  rgba(255,255,255,0.1);  
+    }  
+  
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }  
+  
+    html { scroll-behavior: smooth; overflow-x: hidden; }  
+  
+    body {  
+      font-family: 'CustomFont', 'Segoe UI', 'Tajawal', sans-serif;  
+      background: var(--blue-deep);  
+      color: var(--white);  
+      overflow-x: hidden;  
+      direction: rtl;  
+      line-height: 1.6;  
+    }  
+  
+    /* ── Animated Background ── */  
+    .bg-canvas {  
+      position: fixed;  
+      inset: 0;  
+      z-index: 0;  
+      background:  
+        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(26,110,245,0.35) 0%, transparent 70%),  
+        radial-gradient(ellipse 60% 50% at 85% 80%, rgba(255,106,0,0.30) 0%, transparent 65%),  
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(61,159,255,0.12) 0%, transparent 70%),  
+        linear-gradient(160deg, #050e1f 0%, #0a1e4a 40%, #0d1a2e 70%, #1a0a00 100%);  
+    }  
+  
+    .bg-orb {  
+      position: fixed;  
+      border-radius: 50%;  
+      filter: blur(80px);  
+      animation: floatOrb 12s ease-in-out infinite;  
+      z-index: 0;  
+      pointer-events: none;  
+    }  
+    .bg-orb-1 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,106,0,0.15), transparent 70%); top: -50px; left: -100px; }  
+    .bg-orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(26,110,245,0.2), transparent 70%); bottom: -50px; right: -100px; }  
+  
+    @keyframes floatOrb {  
+      0%, 100% { transform: translateY(0px) scale(1); }  
+      50% { transform: translateY(-30px) scale(1.1); }  
+    }  
+  
+    .sparks { position: fixed; inset: 0; z-index: 0; pointer-events: none; }  
+    .spark { position: absolute; border-radius: 50%; animation: sparkFloat linear infinite; opacity: 0; }  
+    @keyframes sparkFloat {  
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }  
+      50% { opacity: 0.8; }  
+      100% { transform: translateY(-20px) scale(1.2); opacity: 0; }  
+    }  
+  
+    .page { position: relative; z-index: 1; width: 100%; }  
+  
+    /* ═══════════════════════════════  
+       HERO SECTION  
+    ═══════════════════════════════ */  
+    .hero {  
+      min-height: 100dvh; /* Dynamic viewport height لجوالات أندرويد */  
+      display: flex;  
+      flex-direction: column;  
+      align-items: center;  
+      justify-content: center;  
+      text-align: center;  
+      padding: 20px;  
+    }  
+  
+    .logo-wrap { margin-bottom: 20px; animation: fadeDown 0.8s ease both; }  
+    .logo-wrap img {  
+      width: clamp(100px, 25vw, 150px);  
+      height: auto;  
+      filter: drop-shadow(0 0 20px rgba(255,106,0,0.4));  
+    }  
+  
+    .hero-title {  
+      font-size: clamp(2.2rem, 8vw, 5.5rem); /* تعديل الحجم ليناسب الجوال */  
+      font-weight: 900;  
+      line-height: 1.1;  
+      background: linear-gradient(135deg, #ffffff 0%, var(--blue-glow) 40%, var(--orange-hot) 70%, var(--orange-gold) 100%);  
+      -webkit-background-clip: text;  
+      -webkit-text-fill-color: transparent;  
+      margin-bottom: 12px;  
+      animation: fadeUp 0.9s 0.2s ease both;  
+    }  
+  
+    .hero-sub {  
+      font-size: clamp(0.9rem, 4vw, 1.3rem);  
+      color: var(--white-dim);  
+      margin-bottom: 40px;  
+      animation: fadeUp 0.9s 0.35s ease both;  
+    }  
+  
+    .scroll-cue {  
+      position: absolute;  
+      bottom: 20px;  
+      display: flex;  
+      flex-direction: column;  
+      align-items: center;  
+      gap: 5px;  
+      color: var(--white-dim);  
+      font-size: 0.75rem;  
+      animation: fadeUp 1s 1s ease both;  
+    }  
+    .scroll-arrow {  
+      width: 15px; height: 15px;  
+      border-right: 2px solid var(--orange-hot);  
+      border-bottom: 2px solid var(--orange-hot);  
+      transform: rotate(45deg);  
+      animation: bounceArrow 1.4s infinite;  
+    }  
+    @keyframes bounceArrow { 0%, 100% { transform: rotate(45deg) translateY(0); } 50% { transform: rotate(45deg) translateY(5px); } }  
+  
+    /* ═══════════════════════════════  
+       DESCRIPTION SECTION  
+    ═══════════════════════════════ */  
+    .desc-section {  
+      padding: 60px 20px;  
+      max-width: 800px;  
+      margin: 0 auto;  
+    }  
+  
+    .section-label {  
+      text-align: center;  
+      font-size: 0.75rem;  
+      letter-spacing: 3px;  
+      color: var(--orange-hot);  
+      margin-bottom: 20px;  
+      opacity: 0;  
+    }  
+    .section-label.visible { animation: fadeUp 0.8s ease forwards; }  
+  
+    .desc-card {  
+      background: rgba(255,255,255,0.04);  
+      border: 1px solid rgba(255,255,255,0.08);  
+      border-radius: 20px;  
+      padding: clamp(20px, 5vw, 40px);  
+      backdrop-filter: blur(10px);  
+      -webkit-backdrop-filter: blur(10px);  
+    }  
+  
+    .desc-line {  
+      display: flex;  
+      align-items: flex-start;  
+      gap: 15px;  
+      margin-bottom: 18px;  
+      opacity: 0;  
+      transform: translateY(20px);  
+      transition: 0.6s ease;  
+    }  
+    .desc-line.visible { opacity: 1; transform: translateY(0); }  
+  
+    .desc-icon {  
+      flex-shrink: 0;  
+      width: 32px; height: 32px;  
+      background: rgba(255,255,255,0.1);  
+      border-radius: 8px;  
+      display: flex; align-items: center; justify-content: center;  
+    }  
+    .desc-text { font-size: 0.95rem; color: var(--white-dim); }  
+  
+    /* ═══════════════════════════════  
+       FEATURES & DOWNLOAD  
+    ═══════════════════════════════ */  
+    .features-strip {  
+      display: grid;  
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));  
+      gap: 12px;  
+      max-width: 800px;  
+      margin: 0 auto 60px;  
+      padding: 0 20px;  
+    }  
+  
+    .feat-pill {  
+      background: rgba(255,255,255,0.04);  
+      border: 1px solid rgba(255,255,255,0.08);  
+      padding: 15px;  
+      border-radius: 12px;  
+      text-align: center;  
+    }  
+  
+    .download-section { text-align: center; padding: 40px 20px 80px; }  
+    .download-title { font-size: 1.8rem; margin-bottom: 10px; font-weight: 800; }  
+    
+    .btn-download {  
+      display: inline-flex;  
+      align-items: center;  
+      gap: 12px;  
+      padding: 18px 40px;  
+      background: linear-gradient(135deg, var(--orange-fire), var(--orange-gold));  
+      color: #fff;  
+      text-decoration: none;  
+      border-radius: 50px;  
+      font-weight: 800;  
+      box-shadow: 0 10px 30px rgba(255,106,0,0.3);  
+      transition: 0.3s;  
+      width: 100%;  
+      max-width: 300px;  
+      justify-content: center;  
+    }  
+    .btn-download:active { transform: scale(0.96); }  
+  
+    footer { padding: 30px; text-align: center; font-size: 0.7rem; opacity: 0.4; }  
+  
+    /* ── Animations ── */  
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }  
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }  
+  
+  </style>  
+</head>  
+<body>  
+  <div class="bg-canvas"></div>  
+  <div class="bg-orb bg-orb-1"></div>  
+  <div class="bg-orb bg-orb-2"></div>  
+  <div class="sparks" id="sparks"></div>  
+  
+  <div class="page">  
+    <section class="hero">  
+      <div class="logo-wrap">  
+        <img src="logo.png" alt="قنبلة الأسئلة" onerror="this.style.display='none'"/>  
+      </div>  
+      <h1 class="hero-title">قنبلة الأسئلة</h1>  
+      <p class="hero-sub">لعبة السرعة · الذكاء · الإثارة</p>  
+      <div class="scroll-cue">  
+        <span>اسحب للأعلى</span>  
+        <div class="scroll-arrow"></div>  
+      </div>  
+    </section>  
+  
+    <section class="desc-section">  
+      <p class="section-label observe-me">✦ عن اللعبة ✦</p>  
+      <div class="desc-card">  
+        <div class="desc-line observe-line"><div class="desc-icon">💣</div><p class="desc-text">لعبة جماعية تعتمد على السرعة في الإجابة والذكاء تحت الضغط.</p></div>  
+        <div class="desc-line observe-line"><div class="desc-icon">🔁</div><p class="desc-text">مرّر "القنبلة" بين أصدقائك وأجب قبل فوات الأوان.</p></div>  
+        <div class="desc-line observe-line"><div class="desc-icon">🧠</div><p class="desc-text">تحديات معرفية متنوعة تزيد من حماس الجلسة.</p></div>  
+        <div class="desc-line observe-line"><div class="desc-icon">❓</div><p class="desc-text">هل تستطيع النجاة قبل الانفجار؟</p></div>  
+      </div>  
+    </section>  
+  
+    <div class="features-strip">  
+      <div class="feat-pill">⚡ سريعة</div>  
+      <div class="feat-pill">🎯 متنوعة</div>  
+      <div class="feat-pill">👑 تنافسية</div>  
+      <div class="feat-pill">🤝 جماعية</div>  
+    </div>  
+  
+    <section class="download-section">  
+      <p class="download-title">جاهز للتحدي؟</p>  
+      <a href="#" class="btn-download" id="downloadBtn">📲 تحميل للأندرويد</a>  
+    </section>  
+  
+    <footer>© 2025 قنبلة الأسئلة · جميع الحقوق محفوظة</footer>  
+  </div>  
+  
+  <script>  
+    /* Sparks */  
+    const sparksContainer = document.getElementById('sparks');  
+    for (let i = 0; i < 20; i++) {  
+      const s = document.createElement('div');  
+      s.className = 'spark';  
+      s.style.left = Math.random()*100 + '%';  
+      s.style.width = s.style.height = Math.random()*3+1 + 'px';  
+      s.style.background = ['#ff9500','#3d9fff'][Math.floor(Math.random()*2)];  
+      s.style.animationDuration = 5+Math.random()*5 + 's';  
+      s.style.animationDelay = Math.random()*5 + 's';  
+      sparksContainer.appendChild(s);  
+    }  
+  
+    /* Intersection Observer */  
+    const observer = new IntersectionObserver((entries) => {  
+      entries.forEach(entry => {  
+        if (entry.isIntersecting) entry.target.classList.add('visible');  
+      });  
+    }, { threshold: 0.1 });  
+  
+    document.querySelectorAll('.observe-me, .observe-line').forEach(el => observer.observe(el));  
+  </script>  
+</body>  
 </html>
-
